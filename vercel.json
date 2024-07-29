@@ -9,4 +9,4 @@
       { "src": "/api/burgers/(.*)", "dest": "/server.js" },
       { "src": "/(.*)", "dest": "/server.js" }
     ]
-}
+  }
