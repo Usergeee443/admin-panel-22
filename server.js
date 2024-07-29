@@ -7,10 +7,14 @@ const app = express();
 app.use(express.json());
 app.use(express.static('public'));
 
+// Utility function to get the path to the burgers.json file
+const getBurgersFilePath = () => path.join(__dirname, 'burgers.json');
+
 // API routes
 app.get('/api/burgers', async (req, res) => {
     try {
-        const data = await fs.readFile('burgers.json', 'utf8');
+        const filePath = getBurgersFilePath();
+        const data = await fs.readFile(filePath, 'utf8');
         res.json(JSON.parse(data));
     } catch (error) {
         console.error('Error reading burger data:', error);
@@ -20,10 +24,11 @@ app.get('/api/burgers', async (req, res) => {
 
 app.post('/api/burgers', async (req, res) => {
     try {
-        const currentData = await fs.readFile('burgers.json', 'utf8');
+        const filePath = getBurgersFilePath();
+        const currentData = await fs.readFile(filePath, 'utf8');
         const burgers = JSON.parse(currentData);
         burgers.push(req.body);
-        await fs.writeFile('burgers.json', JSON.stringify(burgers, null, 2));
+        await fs.writeFile(filePath, JSON.stringify(burgers, null, 2));
         res.json({ message: 'Burger added successfully' });
     } catch (error) {
         console.error('Error saving burger data:', error);
@@ -33,14 +38,15 @@ app.post('/api/burgers', async (req, res) => {
 
 app.delete('/api/burgers/:index', async (req, res) => {
     try {
-        const currentData = await fs.readFile('burgers.json', 'utf8');
+        const filePath = getBurgersFilePath();
+        const currentData = await fs.readFile(filePath, 'utf8');
         let burgers = JSON.parse(currentData);
         const index = parseInt(req.params.index, 10);
         if (isNaN(index) || index < 0 || index >= burgers.length) {
             return res.status(400).json({ error: 'Invalid index' });
         }
         burgers.splice(index, 1);
-        await fs.writeFile('burgers.json', JSON.stringify(burgers, null, 2));
+        await fs.writeFile(filePath, JSON.stringify(burgers, null, 2));
         res.json({ message: 'Burger deleted successfully' });
     } catch (error) {
         console.error('Error deleting burger:', error);
