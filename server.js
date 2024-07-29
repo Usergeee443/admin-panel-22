@@ -25,7 +25,7 @@ async function connectToMongo() {
 connectToMongo();
 
 // API routes
-app.get('/api/burgers', async (req, res) => {
+app.get('/api/burgers', async (_req, res) => {
   try {
     const burgers = await burgersCollection.find({}).toArray();
     res.json(burgers);
@@ -58,6 +58,25 @@ app.delete('/api/burgers/:id', async (req, res) => {
   } catch (error) {
     console.error('Error deleting burger:', error);
     res.status(500).json({ error: 'Error deleting burger', details: error.message });
+  }
+});
+
+app.put('/api/burgers/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updatedBurger = req.body;
+    const result = await burgersCollection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: updatedBurger }
+    );
+    if (result.matchedCount === 1) {
+      res.json({ message: 'Burger updated successfully' });
+    } else {
+      res.status(404).json({ error: 'Burger not found' });
+    }
+  } catch (error) {
+    console.error('Error updating burger:', error);
+    res.status(500).json({ error: 'Error updating burger', details: error.message });
   }
 });
 

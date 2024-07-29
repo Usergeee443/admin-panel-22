@@ -13,7 +13,7 @@
     </style>
 </head>
 <body>
-    <h1>Burger Admin Panel 1</h1>
+    <h1>Burger Admin Panel</h1>
     
     <div id="burgerList"></div>
     
@@ -36,12 +36,13 @@
                 }
                 const burgers = await response.json();
                 const burgerList = document.getElementById('burgerList');
-                burgerList.innerHTML = burgers.map((burger, index) => `
+                burgerList.innerHTML = burgers.map((burger) => `
                     <div class="burger-item">
                         <h3>${burger.name}</h3>
                         <p>Price: ${burger.price}</p>
                         <img src="${burger.photo}" alt="${burger.name}" width="100">
-                        <button onclick="deleteBurger(${index})">Delete</button>
+                        <button onclick="deleteBurger('${burger._id}')">Delete</button>
+                        <button onclick="updateBurger('${burger._id}')">Update</button>
                     </div>
                 `).join('');
             } catch (error) {
@@ -75,9 +76,9 @@
             }
         }
     
-        async function deleteBurger(index) {
+        async function deleteBurger(id) {
             try {
-                const response = await fetch(`/api/burgers/${index}`, { method: 'DELETE' });
+                const response = await fetch(`/api/burgers/${id}`, { method: 'DELETE' });
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
@@ -85,6 +86,31 @@
             } catch (error) {
                 console.error('Error deleting burger:', error);
                 alert(`Error deleting burger: ${error.message}`);
+            }
+        }
+        
+        async function updateBurger(id) {
+            const name = prompt("Enter new name:");
+            const price = prompt("Enter new price:");
+            const photo = prompt("Enter new photo URL:");
+            
+            if (name && price && photo) {
+                try {
+                    const response = await fetch(`/api/burgers/${id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name, price, photo })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    await fetchBurgers();
+                } catch (error) {
+                    console.error('Error updating burger:', error);
+                    alert(`Error updating burger: ${error.message}`);
+                }
             }
         }
     
